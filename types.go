@@ -3,8 +3,6 @@ package main
 import (
 	"database/sql"
 	"sync"
-
-	"github.com/google/uuid"
 )
 
 // Config is global configuration struct
@@ -72,7 +70,7 @@ type acmedb struct {
 type database interface {
 	Init(string, string) error
 	Register(cidrslice) (ACMETxt, error)
-	GetByUsername(uuid.UUID) (ACMETxt, error)
+	GetByUsername(string) (ACMETxt, error)
 	GetTXTForDomain(string) ([]string, error)
 	Update(ACMETxt) error
 	GetBackend() *sql.DB

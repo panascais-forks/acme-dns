@@ -3,16 +3,11 @@ package main
 import (
 	"unicode/utf8"
 
-	"github.com/google/uuid"
 	"golang.org/x/crypto/bcrypt"
 )
 
-func getValidUsername(u string) (uuid.UUID, error) {
-	uname, err := uuid.Parse(u)
-	if err != nil {
-		return uuid.UUID{}, err
-	}
-	return uname, nil
+func getValidUsername(u string) (string, error) {
+	return u, nil
 }
 
 func validKey(k string) bool {
@@ -25,11 +20,7 @@ func validKey(k string) bool {
 }
 
 func validSubdomain(s string) bool {
-	_, err := uuid.Parse(s)
-	if err == nil {
-		return true
-	}
-	return false
+	return true
 }
 
 func validTXT(s string) bool {

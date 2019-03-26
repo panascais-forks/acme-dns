@@ -7,16 +7,17 @@ import (
 )
 
 func TestGetValidUsername(t *testing.T) {
-	v1, _ := uuid.Parse("a097455b-52cc-4569-90c8-7a4b97c6eba8")
+	id, _ := uuid.Parse("a097455b-52cc-4569-90c8-7a4b97c6eba8")
+	v1 := id.String()
 	for i, test := range []struct {
 		uname     string
-		output    uuid.UUID
+		output    string
 		shouldErr bool
 	}{
 		{"a097455b-52cc-4569-90c8-7a4b97c6eba8", v1, false},
-		{"a-97455b-52cc-4569-90c8-7a4b97c6eba8", uuid.UUID{}, true},
-		{"", uuid.UUID{}, true},
-		{"&!#!25123!%!'%", uuid.UUID{}, true},
+		{"a-97455b-52cc-4569-90c8-7a4b97c6eba8", "a-97455b-52cc-4569-90c8-7a4b97c6eba8", false},
+		{"", "", false},
+		{"&!#!25123!%!'%", "&!#!25123!%!'%", false},
 	} {
 		ret, err := getValidUsername(test.uname)
 		if test.shouldErr && err == nil {
@@ -55,9 +56,9 @@ func TestGetValidSubdomain(t *testing.T) {
 		output    bool
 	}{
 		{"a097455b-52cc-4569-90c8-7a4b97c6eba8", true},
-		{"a-97455b-52cc-4569-90c8-7a4b97c6eba8", false},
-		{"", false},
-		{"&!#!25123!%!'%", false},
+		{"a-97455b-52cc-4569-90c8-7a4b97c6eba8", true},
+		{"", true},
+		{"&!#!25123!%!'%", true},
 	} {
 		ret := validSubdomain(test.subdomain)
 		if ret != test.output {

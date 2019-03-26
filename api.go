@@ -56,8 +56,8 @@ func webRegisterPost(w http.ResponseWriter, r *http.Request, _ httprouter.Params
 		regStatus = http.StatusInternalServerError
 		log.WithFields(log.Fields{"error": err.Error()}).Debug("Error in registration")
 	} else {
-		log.WithFields(log.Fields{"user": nu.Username.String()}).Debug("Created new user")
-		regStruct := RegResponse{nu.Username.String(), nu.Password, nu.Subdomain + "." + Config.General.Domain, nu.Subdomain, nu.AllowFrom.ValidEntries()}
+		log.WithFields(log.Fields{"user": nu.Username}).Debug("Created new user")
+		regStruct := RegResponse{nu.Username, nu.Password, nu.Subdomain + "." + Config.General.Domain, nu.Subdomain, nu.AllowFrom.ValidEntries()}
 		regStatus = http.StatusCreated
 		reg, err = json.Marshal(regStruct)
 		if err != nil {

@@ -10,7 +10,7 @@ import (
 
 // ACMETxt is the default structure for the user controlled record
 type ACMETxt struct {
-	Username uuid.UUID
+	Username string
 	Password string
 	ACMETxtPost
 	AllowFrom cidrslice
@@ -86,7 +86,7 @@ func (a ACMETxt) allowedFromList(ips []string) bool {
 func newACMETxt() ACMETxt {
 	var a = ACMETxt{}
 	password := generatePassword(40)
-	a.Username = uuid.New()
+	a.Username = uuid.New().String()
 	a.Password = password
 	a.Subdomain = uuid.New().String()
 	return a

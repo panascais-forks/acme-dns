@@ -9,7 +9,6 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/google/uuid"
 	_ "github.com/lib/pq"
 	_ "github.com/mattn/go-sqlite3"
 	log "github.com/sirupsen/logrus"
@@ -202,14 +201,14 @@ func (d *acmedb) Register(afrom cidrslice) (ACMETxt, error) {
 		return a, errors.New("SQL error")
 	}
 	defer sm.Close()
-	_, err = sm.Exec(a.Username.String(), passwordHash, a.Subdomain, a.AllowFrom.JSON())
+	_, err = sm.Exec(a.Username, passwordHash, a.Subdomain, a.AllowFrom.JSON())
 	if err == nil {
 		err = d.NewTXTValuesInTransaction(tx, a.Subdomain)
 	}
 	return a, err
 }
 
-func (d *acmedb) GetByUsername(u uuid.UUID) (ACMETxt, error) {
+func (d *acmedb) GetByUsername(u string) (ACMETxt, error) {
 	d.Lock()
 	defer d.Unlock()
 	var results []ACMETxt
@@ -227,7 +226,7 @@ func (d *acmedb) GetByUsername(u uuid.UUID) (ACMETxt, error) {
 		return ACMETxt{}, err
 	}
 	defer sm.Close()
-	rows, err := sm.Query(u.String())
+	rows, err := sm.Query(u)
 	if err != nil {
 		return ACMETxt{}, err
 	}

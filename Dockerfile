@@ -3,14 +3,14 @@ LABEL maintainer="joona@kuori.org"
 
 RUN apk add --update gcc musl-dev git
 
-RUN go get github.com/joohoi/acme-dns
-WORKDIR /go/src/github.com/joohoi/acme-dns
+RUN go get github.com/panascais-forks/acme-dns
+WORKDIR /go/src/github.com/panascais-forks/acme-dns
 RUN CGO_ENABLED=1 go build
 
 FROM alpine:latest
 
 WORKDIR /root/
-COPY --from=builder /go/src/github.com/joohoi/acme-dns .
+COPY --from=builder /go/src/github.com/panascais-forks/acme-dns .
 RUN mkdir -p /etc/acme-dns
 RUN mkdir -p /var/lib/acme-dns
 RUN rm -rf ./config.cfg

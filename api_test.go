@@ -25,7 +25,8 @@ func noAuth(update httprouter.Handle) httprouter.Handle {
 		dec := json.NewDecoder(r.Body)
 		_ = dec.Decode(&postData)
 		// Set user info to the decoded ACMETxt object
-		postData.Username, _ = uuid.Parse(uname)
+		id, _ := uuid.Parse(uname)
+		postData.Username = id.String()
 		postData.Password = passwd
 		// Set the ACMETxt struct to context to pull in from update function
 		ctx := r.Context()
@@ -211,7 +212,7 @@ func TestApiUpdateWithInvalidSubdomain(t *testing.T) {
 	updateJSON["txt"] = validTxtData
 	e.POST("/update").
 		WithJSON(updateJSON).
-		WithHeader("X-Api-User", newUser.Username.String()).
+		WithHeader("X-Api-User", newUser.Username).
 		WithHeader("X-Api-Key", newUser.Password).
 		Expect().
 		Status(http.StatusUnauthorized).
@@ -241,7 +242,7 @@ func TestApiUpdateWithInvalidTxt(t *testing.T) {
 	updateJSON["txt"] = invalidTXTData
 	e.POST("/update").
 		WithJSON(updateJSON).
-		WithHeader("X-Api-User", newUser.Username.String()).
+		WithHeader("X-Api-User", newUser.Username).
 		WithHeader("X-Api-Key", newUser.Password).
 		Expect().
 		Status(http.StatusBadRequest).
@@ -283,7 +284,7 @@ func TestApiUpdateWithCredentials(t *testing.T) {
 	updateJSON["txt"] = validTxtData
 	e.POST("/update").
 		WithJSON(updateJSON).
-		WithHeader("X-Api-User", newUser.Username.String()).
+		WithHeader("X-Api-User", newUser.Username).
 		WithHeader("X-Api-Key", newUser.Password).
 		Expect().
 		Status(http.StatusOK).
@@ -362,13 +363,13 @@ func TestApiManyUpdateWithCredentials(t *testing.T) {
 		{"non-uuid-user", "tooshortpass", "non-uuid-subdomain", validTxtData, 401},
 		{"a097455b-52cc-4569-90c8-7a4b97c6eba8", "tooshortpass", "bb97455b-52cc-4569-90c8-7a4b97c6eba8", validTxtData, 401},
 		{"a097455b-52cc-4569-90c8-7a4b97c6eba8", "LongEnoughPassButNoUserExists___________", "bb97455b-52cc-4569-90c8-7a4b97c6eba8", validTxtData, 401},
-		{newUser.Username.String(), newUser.Password, "a097455b-52cc-4569-90c8-7a4b97c6eba8", validTxtData, 401},
-		{newUser.Username.String(), newUser.Password, newUser.Subdomain, "tooshortfortxt", 400},
-		{newUser.Username.String(), newUser.Password, newUser.Subdomain, 1234567890, 400},
-		{newUser.Username.String(), newUser.Password, newUser.Subdomain, validTxtData, 200},
-		{newUserWithCIDR.Username.String(), newUserWithCIDR.Password, newUserWithCIDR.Subdomain, validTxtData, 401},
-		{newUserWithValidCIDR.Username.String(), newUserWithValidCIDR.Password, newUserWithValidCIDR.Subdomain, validTxtData, 200},
-		{newUser.Username.String(), "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx", newUser.Subdomain, validTxtData, 401},
+		{newUser.Username, newUser.Password, "a097455b-52cc-4569-90c8-7a4b97c6eba8", validTxtData, 401},
+		{newUser.Username, newUser.Password, newUser.Subdomain, "tooshortfortxt", 400},
+		{newUser.Username, newUser.Password, newUser.Subdomain, 1234567890, 400},
+		{newUser.Username, newUser.Password, newUser.Subdomain, validTxtData, 200},
+		{newUserWithCIDR.Username, newUserWithCIDR.Password, newUserWithCIDR.Subdomain, validTxtData, 401},
+		{newUserWithValidCIDR.Username, newUserWithValidCIDR.Password, newUserWithValidCIDR.Subdomain, validTxtData, 200},
+		{newUser.Username, "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx", newUser.Subdomain, validTxtData, 401},
 	} {
 		updateJSON = map[string]interface{}{
 			"subdomain": test.subdomain,
@@ -430,7 +431,7 @@ func TestApiManyUpdateWithIpCheckHeaders(t *testing.T) {
 			"txt":       "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"}
 		e.POST("/update").
 			WithJSON(updateJSON).
-			WithHeader("X-Api-User", test.user.Username.String()).
+			WithHeader("X-Api-User", test.user.Username).
 			WithHeader("X-Api-Key", test.user.Password).
 			WithHeader("X-Forwarded-For", test.headerValue).
 			Expect().
