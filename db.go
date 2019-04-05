@@ -165,12 +165,12 @@ func (d *acmedb) NewTXTValuesInTransaction(tx *sql.Tx, subdomain string) error {
 	var err error
 	instr := fmt.Sprintf("INSERT INTO txt (Subdomain, LastUpdate) values('%s', 0)", subdomain)
 	for i := 1; i <= 128; i++ {
-	    _, err = tx.Exec(instr)
+		_, err = tx.Exec(instr)
 	}
 	return err
 }
 
-func (d *acmedb) Register(afrom cidrslice) (ACMETxt, error) {
+func (d *acmedb) Register(username string, password string, subdomain string, afrom cidrslice) (ACMETxt, error) {
 	d.Lock()
 	defer d.Unlock()
 	var err error
@@ -183,7 +183,7 @@ func (d *acmedb) Register(afrom cidrslice) (ACMETxt, error) {
 		}
 		tx.Commit()
 	}()
-	a := newACMETxt()
+	a := newACMETxt(username, password, subdomain)
 	a.AllowFrom = cidrslice(afrom.ValidEntries())
 	passwordHash, err := bcrypt.GenerateFromPassword([]byte(a.Password), 10)
 	regSQL := `

@@ -61,8 +61,19 @@ func webRegisterPost(w http.ResponseWriter, r *http.Request, _ httprouter.Params
 		return
 	}
 
+	_, err = DB.GetByUsername(aTXT.Username)
+
+	if err == nil {
+		regStatus = http.StatusBadRequest
+		reg = jsonError("user_already_exists")
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(regStatus)
+		w.Write(reg)
+		return
+	}
+
 	// Create new user
-	nu, err := DB.Register(aTXT.AllowFrom)
+	nu, err := DB.Register(aTXT.Username, aTXT.Password, aTXT.Subdomain, aTXT.AllowFrom)
 	if err != nil {
 		errstr := fmt.Sprintf("%v", err)
 		reg = jsonError(errstr)

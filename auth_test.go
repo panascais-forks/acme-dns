@@ -7,9 +7,9 @@ import (
 
 func TestUpdateAllowedFromIP(t *testing.T) {
 	Config.API.UseHeader = false
-	userWithAllow := newACMETxt()
+	userWithAllow := newACMETxt("", "", "")
 	userWithAllow.AllowFrom = cidrslice{"192.168.1.2/32", "[::1]/128"}
-	userWithoutAllow := newACMETxt()
+	userWithoutAllow := newACMETxt("", "", "")
 
 	for i, test := range []struct {
 		remoteaddr string

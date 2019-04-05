@@ -70,7 +70,7 @@ type acmedb struct {
 
 type database interface {
 	Init(string, string) error
-	Register(cidrslice) (ACMETxt, error)
+	Register(username string, password string, subdomain string, cidrslice cidrslice) (ACMETxt, error)
 	GetByUsername(string) (ACMETxt, error)
 	GetTXTForDomain(string) ([]string, error)
 	Update(ACMETxt) error
