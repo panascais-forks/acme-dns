@@ -16,8 +16,8 @@ type key int
 // ACMETxtKey is a context key for ACMETxt struct
 const ACMETxtKey key = 0
 
-// Auth middleware for update request
-func Auth(update httprouter.Handle) httprouter.Handle {
+// UpdateAuth middleware for update request
+func UpdateAuth(update httprouter.Handle) httprouter.Handle {
 	return func(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 		postData := ACMETxt{}
 		userOK := false

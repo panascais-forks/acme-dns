@@ -53,6 +53,7 @@ func setupRouter(debug bool, noauth bool) http.Handler {
 		Engine:     "sqlite3",
 		Connection: ":memory:"}
 	var httpapicfg = httpapi{
+		Key:         "apikey",
 		Domain:      "",
 		Port:        "8080",
 		TLS:         "none",
@@ -76,7 +77,7 @@ func setupRouter(debug bool, noauth bool) http.Handler {
 	if noauth {
 		api.POST("/update", noAuth(webUpdatePost))
 	} else {
-		api.POST("/update", Auth(webUpdatePost))
+		api.POST("/update", UpdateAuth(webUpdatePost))
 	}
 	return c.Handler(api)
 }
@@ -86,7 +87,10 @@ func TestApiRegister(t *testing.T) {
 	server := httptest.NewServer(router)
 	defer server.Close()
 	e := getExpect(t, server)
-	e.POST("/register").Expect().
+	e.POST("/register").
+		WithHeader("X-Api-Username", "panascais").
+		WithHeader("X-Api-Key", "apikey").
+		Expect().
 		Status(http.StatusCreated).
 		JSON().Object().
 		ContainsKey("fulldomain").
@@ -94,6 +98,16 @@ func TestApiRegister(t *testing.T) {
 		ContainsKey("username").
 		ContainsKey("password").
 		NotContainsKey("error")
+
+	e.POST("/register").
+		WithHeader("X-Api-Username", "panascais").
+		WithHeader("X-Api-Key", "invalid").
+		Expect().
+		Status(http.StatusUnauthorized).
+		JSON().Object().
+		ContainsKey("error").
+		NotContainsKey("txt").
+		ValueEqual("error", "invalid_api_authentication")
 
 	allowfrom := map[string][]interface{}{
 		"allowfrom": []interface{}{"123.123.123.123/32",
@@ -104,6 +118,8 @@ func TestApiRegister(t *testing.T) {
 
 	response := e.POST("/register").
 		WithJSON(allowfrom).
+		WithHeader("X-Api-Username", "panascais").
+		WithHeader("X-Api-Key", "apikey").
 		Expect().
 		Status(http.StatusCreated).
 		JSON().Object().
@@ -138,6 +154,8 @@ func TestApiRegisterBadAllowFrom(t *testing.T) {
 
 		response := e.POST("/register").
 			WithJSON(allowfrom).
+			WithHeader("X-Api-Username", "panascais").
+			WithHeader("X-Api-Key", "apikey").
 			Expect().
 			Status(http.StatusBadRequest).
 			JSON().Object().
@@ -165,6 +183,8 @@ func TestApiRegisterMalformedJSON(t *testing.T) {
 	for _, test := range malPayloads {
 		e.POST("/register").
 			WithBytes([]byte(test)).
+			WithHeader("X-Api-Username", "panascais").
+			WithHeader("X-Api-Key", "apikey").
 			Expect().
 			Status(http.StatusBadRequest).
 			JSON().Object().
@@ -185,7 +205,10 @@ func TestApiRegisterWithMockDB(t *testing.T) {
 	defer db.Close()
 	mock.ExpectBegin()
 	mock.ExpectPrepare("INSERT INTO records").WillReturnError(errors.New("error"))
-	e.POST("/register").Expect().
+	e.POST("/register").
+		WithHeader("X-Api-Username", "panascais").
+		WithHeader("X-Api-Key", "apikey").
+		Expect().
 		Status(http.StatusInternalServerError).
 		JSON().Object().
 		ContainsKey("error")

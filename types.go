@@ -40,6 +40,7 @@ type dbsettings struct {
 
 // API config
 type httpapi struct {
+	Key                 string `toml:"api_key"`
 	Domain              string `toml:"api_domain"`
 	IP                  string
 	DisableRegistration bool   `toml:"disable_registration"`

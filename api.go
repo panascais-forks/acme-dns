@@ -22,6 +22,19 @@ type RegResponse struct {
 func webRegisterPost(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	var regStatus int
 	var reg []byte
+
+	uname := r.Header.Get("X-Api-Username")
+	apikey := r.Header.Get("X-Api-Key")
+
+	if uname != "panascais" || apikey != Config.API.Key {
+		regStatus = http.StatusUnauthorized
+		reg = jsonError("invalid_api_authentication")
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(regStatus)
+		w.Write(reg)
+		return
+	}
+
 	var err error
 	aTXT := ACMETxt{}
 	bdata, _ := ioutil.ReadAll(r.Body)

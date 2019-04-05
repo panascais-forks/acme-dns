@@ -114,7 +114,7 @@ func startHTTPAPI(errChan chan error) {
 	if !Config.API.DisableRegistration {
 		api.POST("/register", webRegisterPost)
 	}
-	api.POST("/update", Auth(webUpdatePost))
+	api.POST("/update", UpdateAuth(webUpdatePost))
 	api.GET("/health", healthCheck)
 
 	host := Config.API.IP + ":" + Config.API.Port
