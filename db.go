@@ -164,7 +164,7 @@ func (d *acmedb) handleDBUpgradeTo1() error {
 func (d *acmedb) NewTXTValuesInTransaction(tx *sql.Tx, subdomain string) error {
 	var err error
 	instr := fmt.Sprintf("INSERT INTO txt (Subdomain, LastUpdate) values('%s', 0)", subdomain)
-	for i := 1; i <= 128; i++ {
+	for i := 1; i <= 2048; i++ {
 		_, err = tx.Exec(instr)
 	}
 	return err
@@ -253,7 +253,7 @@ func (d *acmedb) GetTXTForDomain(domain string) ([]string, error) {
 	domain = sanitizeString(domain)
 	var txts []string
 	getSQL := `
-	SELECT Value FROM txt WHERE Subdomain=$1 AND LastUpdate >= strftime('%s', 'now') - 14400 ORDER BY LastUpdate DESC LIMIT 32
+	SELECT Value FROM txt WHERE Subdomain=$1 AND LastUpdate >= strftime('%s', 'now') - 14400 ORDER BY LastUpdate DESC LIMIT 64
 	`
 	if Config.Database.Engine == "sqlite3" {
 		getSQL = getSQLiteStmt(getSQL)
